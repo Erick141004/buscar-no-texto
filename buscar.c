@@ -6,6 +6,50 @@
 #include <string.h>
 
 
+char **get_line_between_match(char* buffer, int index, int text_length, int size_file){
+    int start_t = 0;
+    int end_t = 0;
+
+    for(int i = index; i > 0; i--){
+        if(buffer[i] == '\n'){
+            start_t = i + 1;
+            break;
+        }
+    }
+    
+    for(int i = index + text_length; i < size_file; i++){
+        if(buffer[i] == '\n' || buffer[i] == '\0'){
+            end_t = i;
+            break;
+        }
+    }
+
+    char **context_t = malloc(sizeof(char *) * 2);
+    context_t[0] = malloc(sizeof(char) * (index - start_t + 1));
+    context_t[1] = malloc(sizeof(char) * (end_t - (index + text_length) + 1));
+
+    int copy_length_start = index - start_t;
+    int copy_length_end = end_t - (index + text_length);  
+
+    if(start_t != 0){
+        if(start_t != index){
+            strncpy(context_t[0], &buffer[start_t], copy_length_start);
+            context_t[0][copy_length_start + 1] = '\0';
+        } else{
+            context_t[0][0] = '\0';   
+        }
+    }
+
+    if(end_t != index + text_length){
+        strncpy(context_t[1], &buffer[text_length + index], copy_length_end);
+        context_t[1][copy_length_end + 1] = '\0';
+    } else {
+        context_t[1][0] = '\0';
+    }
+
+    return context_t;
+}
+
 char **get_string_between_match(char* buffer, int index, int text_length, int context_length, int size_file) {
     char **context = malloc(sizeof(char *) * 2);
     context[0] = malloc(sizeof(char) * (context_length + 4));
@@ -64,8 +108,9 @@ int find_occureance(char *text_search, char *buffer, int size_file, int length_t
         aux_text[length_text] = '\0';
 
         if (strcmp(aux_text, text_search) == 0) {
-            char **context = get_string_between_match(buffer, i, length_text, 10, size_file);
-            printf("Line %d: %s\e[1m%s\e[m%s\n", *count_line, context[0], aux_text, context[1]);
+            char **context = get_line_between_match(buffer, i, length_text, size_file);
+            //char **context = get_string_between_match(buffer, i, length_text, 10, size_file);
+            printf("Line %d: %s\e[1;31m%s\e[0m%s\n", *count_line, context[0], aux_text, context[1]);
             total_appearence++;
             
             free(context[0]);
@@ -122,7 +167,7 @@ int main(int argc, char **argv){
     
     printf("Size file (bytes): %d\n", total_size_file);
 
-    printf("\nThe string \e[1m\"%s\"\e[m has %d appearence(s) in the file %s\n", text_search, total_appearence, file_path);
+    printf("\nThe string \e[1;31m\"%s\"\e[m has %d appearence(s) in the file %s\n", text_search, total_appearence, file_path);
 
     int close_information = close(file_descriptor);
 
