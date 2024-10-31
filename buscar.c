@@ -30,19 +30,17 @@ char **get_line_between_match(char* buffer, int index, int text_length, int size
 
     int copy_length_start = index - start_t;
     int copy_length_end = end_t - (index + text_length);  
-
-    if(start_t != 0){
-        if(start_t != index){
-            strncpy(context_t[0], &buffer[start_t], copy_length_start);
-            context_t[0][copy_length_start + 1] = '\0';
-        } else{
-            context_t[0][0] = '\0';   
-        }
+    
+    if(copy_length_start > 0){
+        strncpy(context_t[0], &buffer[start_t], copy_length_start);
+        context_t[0][copy_length_start] = '\0';
+    } else{
+        context_t[0][0] = '\0';   
     }
-
-    if(end_t != index + text_length){
+    
+    if(copy_length_end > 0){
         strncpy(context_t[1], &buffer[text_length + index], copy_length_end);
-        context_t[1][copy_length_end + 1] = '\0';
+        context_t[1][copy_length_end] = '\0';
     } else {
         context_t[1][0] = '\0';
     }
@@ -128,17 +126,17 @@ int find_occureance(char *text_search, char *buffer, int size_file, int length_t
 int main(int argc, char **argv){
     char buffer[1024];
 
-    if (argv[1] == NULL) {
+    if (argv[2] == NULL) {
         printf("Error passing argument. Pass file path to run the program\n");
         return 0;
     }
 
-    if(argv[2] == NULL){
+    if(argv[1] == NULL){
         printf("Error passing argument. Pass a string to be search to run the program\n");
     }
 
-    char* file_path = argv[1];
-    char* text_search = argv[2];
+    char* file_path = argv[2];
+    char* text_search = argv[1];
 
     printf("Text to be search: %s\n", text_search);
 
